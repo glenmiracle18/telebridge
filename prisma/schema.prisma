@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - base model for authentication
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String    @unique // Added clerkId to link with Clerk
+  email         String    @unique
+  phoneNumber   String?   @unique
+  password      String?   // Made password optional since Clerk handles auth
+  role          UserRole
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  doctor        Doctor?
+  patient       Patient?
+  notifications Notification[]
+}
+
+enum UserRole {
+  DOCTOR
+  PATIENT
+  ADMIN
+}
+
+// Doctor model
+model Doctor {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName           String
+  specialty          Specialty
+  hospital           String
+  yearsOfExperience  Int
+  languagesSpoken    String    // Comma-separated languages, will be parsed in the application
+  profilePhoto       String?
+  bio                String?
+  appointments       Appointment[]
+  availabilities     Availability[]
+  patients           PatientDoctor[]
+  patientNotes       PatientNote[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+enum Specialty {
+  GYNECOLOGIST
+  NEUROLOGIST
+  ONCOLOGIST
+  PSYCHIATRIST
+  CARDIOLOGIST
+  DERMATOLOGIST
+  PEDIATRICIAN
+  ORTHOPEDIST
+  GENERAL_PRACTITIONER
+  OTHER
+}
+
+// Patient model
+model Patient {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName         String
+  gender           Gender
+  dateOfBirth      DateTime
+  location         String    // District/City
+  diagnosis        String?
+  category         PatientCategory
+  emergencyContact String?
+  appointments     Appointment[]
+  doctors          PatientDoctor[]
+  medicalRecords   MedicalRecord[]
+  notes            PatientNote[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PatientCategory {
+  CHRONIC
+  MENTAL_HEALTH
+  MATERNAL_HEALTH
+  PEDIATRIC
+  GERIATRIC
+  EMERGENCY
+  GENERAL
+  OTHER
+}
+
+// PatientDoctor relationship model
+model PatientDoctor {
+  id        String   @id @default(cuid())
+  patientId String
+  doctorId  String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([patientId, doctorId])
+}
+
+// Doctor's availability
+model Availability {
+  id        String   @id @default(cuid())
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  dayOfWeek Int      // 0-6, where 0 is Sunday
+  startTime String   // Format: HH:MM
+  endTime   String   // Format: HH:MM
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([doctorId, dayOfWeek, startTime])
+}
+
+// Appointment model
+model Appointment {
+  id           String           @id @default(cuid())
+  patientId    String
+  patient      Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId     String
+  doctor       Doctor           @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  startTime    DateTime
+  endTime      DateTime
+  status       AppointmentStatus
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  DECLINED
+  COMPLETED
+  CANCELLED
+}
+
+// Medical Records
+model MedicalRecord {
+  id          String   @id @default(cuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  fileUrl     String?  // URL to uploaded document
+  recordType  RecordType
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum RecordType {
+  CONSULTATION
+  PRESCRIPTION
+  LAB_RESULT
+  IMAGING
+  DOCUMENT
+  OTHER
+}
+
+// Patient Notes (by doctors)
+model PatientNote {
+  id        String   @id @default(cuid())
+  patientId String
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Notification model
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+enum NotificationType {
+  APPOINTMENT_REQUEST
+  APPOINTMENT_CONFIRMED
+  APPOINTMENT_DECLINED
+  APPOINTMENT_REMINDER
+  MEDICAL_RECORD_ADDED
+  SYSTEM
+}
