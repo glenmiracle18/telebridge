@@ -43,6 +43,10 @@ model Doctor {
   languagesSpoken    String    // Comma-separated languages, will be parsed in the application
   profilePhoto       String?
   bio                String?
+  education          String?   // Educational background details
+  qualifications     String?   // Professional qualifications and certifications
+  consultationFee    Decimal?  @db.Decimal(10, 2) // Fee for consultation
+  rating             Float?    @default(0) // Average rating from patients
   appointments       Appointment[]
   availabilities     Availability[]
   patients           PatientDoctor[]
