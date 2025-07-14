@@ -182,7 +182,7 @@ export default function BookAppointment() {
 
   if (loading) {
     return (
-      <div className="container py-8">
+      <div className="px-8 py-8">
         <div className="flex justify-center items-center py-20">
           <div className="animate-pulse flex flex-col items-center">
             <div className="h-20 w-20 bg-muted rounded-full mb-4"></div>
@@ -211,7 +211,7 @@ export default function BookAppointment() {
   }
 
   return (
-    <div className="container py-8">
+    <div className="px-8 py-8">
       {/* Breadcrumb navigation */}
       <div className="flex items-center text-sm text-muted-foreground mb-4">
         <Link href="/dashboard" className="hover:text-foreground flex items-center">

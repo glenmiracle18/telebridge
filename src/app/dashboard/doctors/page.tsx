@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,7 +23,7 @@ import {
 import { getDoctors, getSpecialties } from "@/lib/actions/doctor-actions";
 import { Specialty } from "@prisma/client";
 
-export default function DoctorsList() {
+function DoctorsListContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const specialtyParam = searchParams.get('specialty');
@@ -92,7 +92,7 @@ export default function DoctorsList() {
   };
 
   return (
-    <div className="container py-8">
+    <div className="px-8 py-8">
       {/* Page heading with breadcrumb */}
       <div className="flex flex-col gap-1 mb-8">
         <div className="flex items-center text-sm text-muted-foreground mb-1">
@@ -272,5 +272,37 @@ export default function DoctorsList() {
         </div>
       )}
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function DoctorsLoading() {
+  return (
+    <div className="px-8 py-8">
+      <div className="flex flex-col gap-1 mb-8">
+        <div className="flex items-center text-sm text-muted-foreground mb-1">
+          <div className="h-4 w-4 bg-muted rounded mr-1 animate-pulse"></div>
+          <div className="h-4 w-16 bg-muted rounded animate-pulse"></div>
+        </div>
+        <div className="h-8 w-64 bg-muted rounded animate-pulse mb-2"></div>
+        <div className="h-4 w-96 bg-muted rounded animate-pulse"></div>
+      </div>
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-16 w-16 bg-muted rounded-full mb-4"></div>
+          <div className="h-4 w-48 bg-muted rounded mb-2"></div>
+          <div className="h-3 w-32 bg-muted rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function DoctorsList() {
+  return (
+    <Suspense fallback={<DoctorsLoading />}>
+      <DoctorsListContent />
+    </Suspense>
   );
 }

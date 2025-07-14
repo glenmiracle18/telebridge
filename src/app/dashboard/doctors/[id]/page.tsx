@@ -112,7 +112,7 @@ export default function DoctorDetail() {
 
   if (loading) {
     return (
-      <div className="container py-8">
+      <div className="px-8 py-8">
         <div className="flex justify-center items-center py-20">
           <div className="animate-pulse flex flex-col items-center">
             <div className="h-20 w-20 bg-muted rounded-full mb-4"></div>
@@ -141,7 +141,7 @@ export default function DoctorDetail() {
   }
 
   return (
-    <div className="container py-8">
+    <div className="px-8 py-8">
       {/* Breadcrumb navigation */}
       <div className="flex items-center text-sm text-muted-foreground mb-4">
         <Link href="/dashboard" className="hover:text-foreground flex items-center">
@@ -226,7 +226,7 @@ export default function DoctorDetail() {
                 <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
                 <span>Consultation Fee</span>
               </div>
-              <span className="font-semibold">${doctor.consultationFee}</span>
+              <span className="font-semibold">RWF {doctor.consultationFee}</span>
             </div>
             <div className="flex justify-between items-center">
               <div className="flex items-center text-sm">

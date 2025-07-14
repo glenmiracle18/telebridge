@@ -1,26 +1,27 @@
+"use client"
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getMedicalRecords } from '@/lib/actions/medical-record-actions';
-import { auth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import MedicalRecordsList from './components/medical-records-list';
 import { prisma } from '@/lib/prisma';
+import { useUser } from '@clerk/nextjs';
+import { getMedicalRecords } from '@/lib/actions/medical-record-actions';
 
 export default async function MedicalRecordsPage() {
-  const { userId } = auth();
+  const { user: clerkUser } = useUser();
   
-  if (!userId) {
+  if (!clerkUser) {
     redirect('/sign-in');
   }
 
   // Get the patient ID from the user
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
+  const userRecord = await prisma.user.findUnique({
+    where: { clerkId: clerkUser.id },
     include: { patient: true },
   });
 
-  if (!user?.patient) {
+  if (!userRecord?.patient) {
     return (
       <div className="container py-8">
         <Card>
@@ -40,7 +41,7 @@ export default async function MedicalRecordsPage() {
     );
   }
 
-  const { records, error } = await getMedicalRecords(user.patient.id);
+  const { records, error } = await getMedicalRecords(userRecord.patient.id);
 
   return (
     <div className="container py-8">

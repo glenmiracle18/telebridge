@@ -214,7 +214,7 @@ export default function Dashboard() {
     <div className="flex px-4 min-h-screen flex-col bg-muted/30 w-screen">
       {/* Header/Navigation */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="px-4 md:px-8 flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <Image
               src="/telebridge-logo.svg"
@@ -255,8 +255,61 @@ export default function Dashboard() {
                     </span>
                   )}
                 </Button>
+                
+                {/* Notifications Dropdown */}
+                <div className="relative group">
+                  <div className="hidden group-hover:block absolute right-0 top-full mt-2 w-80 p-2 rounded-lg border bg-background shadow-lg z-50">
+                    <div className="flex justify-between items-center px-3 py-2 border-b">
+                      <h4 className="font-medium">Notifications</h4>
+                      <Button variant="ghost" size="sm" className="h-8 text-xs">
+                        Mark all as read
+                      </Button>
+                    </div>
+                    
+                    <div className="max-h-80 overflow-y-auto py-1">
+                      {notifications.length === 0 ? (
+                        <p className="text-center py-4 text-sm text-muted-foreground">No new notifications</p>
+                      ) : (
+                        notifications.slice(0, 5).map((notification) => (
+                          <div 
+                            key={notification.id}
+                            className={`flex items-start gap-2 p-2 hover:bg-muted/50 rounded-md cursor-pointer ${notification.isRead ? '' : 'bg-muted/30'}`}
+                            onClick={() => markAsRead(notification.id)}
+                          >
+                            <div className="mt-0.5">
+                              {getNotificationIcon(notification.type)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs ${notification.isRead ? '' : 'font-medium'}`}>
+                                {notification.message}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground mt-1">
+                                {format(notification.createdAt, 'MMM d, h:mm a')}
+                              </p>
+                            </div>
+                            {!notification.isRead && (
+                              <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    
+                    <div className="pt-2 pb-1 px-3 border-t mt-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full text-xs justify-center hover:bg-muted"
+                      >
+                        View all notifications
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <UserButton afterSignOutUrl="/" />
+              <div className="flex items-center gap-2">
+                <UserButton afterSignOutUrl="/" />
+              </div>
             </SignedIn>
             <SignedOut>
               <SignInButton mode="modal">
@@ -276,7 +329,7 @@ export default function Dashboard() {
 
       <main className="flex-1">
         <SignedIn>
-          <div className="container py-8">
+          <div className="px-4 md:px-8 py-6 md:py-8">
             {/* Mobile search */}
             <div className="md:hidden mb-6">
               <div className="relative">

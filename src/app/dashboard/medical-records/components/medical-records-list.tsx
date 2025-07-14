@@ -7,9 +7,9 @@ import { format } from 'date-fns';
 import { FileText, Download, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { deleteMedicalRecord } from '@/lib/actions/medical-record-actions';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { deleteMedicalRecord } from '@/lib/actions/medical-record-actions';
 
 // Helper function to get the icon for each record type
 function getRecordTypeIcon(type: RecordType) {
